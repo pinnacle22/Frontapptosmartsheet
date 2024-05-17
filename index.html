@@ -21,12 +21,7 @@
             padding: 8px;
             box-sizing: border-box;
         }
-        .error {
-            color: red;
-            font-size: 12px;
-        }
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jasmine-core@3.6.0/lib/jasmine-core/jasmine.css">
 </head>
 <body>
     <h1>Front Plugin</h1>
@@ -34,15 +29,74 @@
         <div class="form-group">
             <label for="pickup-city">Pickup City, ST</label>
             <input type="text" id="pickup-city" name="pickup-city">
-            <div class="error" id="pickup-city-error"></div>
         </div>
         <div class="form-group">
             <label for="delivery-city">Delivery City, ST</label>
             <input type="text" id="delivery-city" name="delivery-city">
-            <div class="error" id="delivery-city-error"></div>
         </div>
         <div class="form-group">
             <label for="one-p1d-mileage">1p1d Mileage</label>
             <input type="number" id="one-p1d-mileage" name="one-p1d-mileage">
-            <div class="error" id="one-p1d-mileage-error"></div>
-       
+        </div>
+        <div class="form-group">
+            <label for="total-miles">Total miles for all stops</label>
+            <input type="number" id="total-miles" name="total-miles">
+        </div>
+        <div class="form-group">
+            <label for="one-p1d-dat-rate">1p1d DAT rate</label>
+            <input type="number" id="one-p1d-dat-rate" name="one-p1d-dat-rate">
+        </div>
+        <div class="form-group">
+            <label for="additional-miles">Additional Miles compared to 1p1d</label>
+            <input type="number" id="additional-miles" name="additional-miles" readonly>
+        </div>
+        <div class="form-group">
+            <label for="rpm">RPM for Additional Miles</label>
+            <input type="number" id="rpm" name="rpm">
+        </div>
+        <div class="form-group">
+            <label for="number-of-stops">Number of Stops</label>
+            <input type="number" id="number-of-stops" name="number-of-stops">
+        </div>
+        <div class="form-group">
+            <label for="additional-rate-per-stop">Additional Rate per extra stop (1st one free)</label>
+            <input type="number" id="additional-rate-per-stop" name="additional-rate-per-stop" value="100">
+        </div>
+        <div class="form-group">
+            <label for="total-cost">Total Cost</label>
+            <input type="number" id="total-cost" name="total-cost" readonly>
+        </div>
+        <div class="form-group">
+            <label for="markup">Markup %</label>
+            <input type="number" id="markup" name="markup" value="15">
+        </div>
+        <div class="form-group">
+            <label for="total-rate">Total Rate to Customer</label>
+            <input type="number" id="total-rate" name="total-rate" readonly>
+        </div>
+        <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+    <script>
+        function calculate() {
+            const oneP1dMileage = parseFloat(document.getElementById('one-p1d-mileage').value) || 0;
+            const totalMiles = parseFloat(document.getElementById('total-miles').value) || 0;
+            const oneP1dDatRate = parseFloat(document.getElementById('one-p1d-dat-rate').value) || 0;
+            const rpm = parseFloat(document.getElementById('rpm').value) || 0;
+            const numberOfStops = parseInt(document.getElementById('number-of-stops').value) || 0;
+            const additionalRatePerStop = parseFloat(document.getElementById('additional-rate-per-stop').value) || 100;
+            const markup = parseFloat(document.getElementById('markup').value) || 15;
+
+            const additionalMiles = totalMiles - oneP1dMileage;
+            document.getElementById('additional-miles').value = additionalMiles;
+
+            const additionalCost = additionalMiles * rpm;
+            const extraStopsCost = (numberOfStops > 1) ? (numberOfStops - 1) * additionalRatePerStop : 0;
+            const totalCost = oneP1dDatRate + additionalCost + extraStopsCost;
+            document.getElementById('total-cost').value = totalCost;
+
+            const totalRate = totalCost * (1 + markup / 100);
+            document.getElementById('total-rate').value = totalRate;
+        }
+    </script>
+</body>
+</html>
