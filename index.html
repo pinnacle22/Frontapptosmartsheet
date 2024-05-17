@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Front Plugin</title>
+    <title>Multi-Stop Quote</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            background-color: #f8f9fa; /* Light gray background */
         }
         .form-group {
             margin-bottom: 15px;
@@ -15,6 +16,8 @@
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
+            color: #D4AF37; /* Gold color */
         }
         .manual-input {
             background-color: #d4edda; /* Light green background */
@@ -31,11 +34,26 @@
             width: 100%;
             padding: 8px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #D4AF37; /* Gold color */
+            color: black; /* Black text color */
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #b8860b; /* Darker gold color */
         }
     </style>
 </head>
 <body>
-    <h1>Front Plugin</h1>
+    <h1 style="color: #D4AF37;">Multi-Stop Quote</h1>
     <form id="plugin-form">
         <div class="form-group">
             <label for="pickup-city" class="required-star">Pickup City, ST</label>
@@ -69,6 +87,10 @@
             <label for="additional-rate-per-stop" class="required-star">Additional Rate per extra stop (1st one free)</label>
             <input type="number" id="additional-rate-per-stop" name="additional-rate-per-stop" class="manual-input" value="100">
         </div>
+        <div class="form-group">
+            <label for="markup" class="required-star">Markup %</label>
+            <input type="number" id="markup" name="markup" class="manual-input" value="15">
+        </div>
         <div class="form-group calculated-input">
             <label for="additional-miles">Additional Miles compared to 1p1d</label>
             <input type="number" id="additional-miles" name="additional-miles" readonly>
@@ -78,14 +100,11 @@
             <input type="number" id="total-cost" name="total-cost" readonly>
         </div>
         <div class="form-group calculated-input">
-            <label for="markup" class="required-star">Markup %</label>
-            <input type="number" id="markup" name="markup" class="manual-input" value="15">
-        </div>
-        <div class="form-group calculated-input">
             <label for="total-rate">Total Rate to Customer</label>
             <input type="number" id="total-rate" name="total-rate" readonly>
         </div>
         <button type="button" onclick="calculate()">Calculate</button>
+        <button type="button" onclick="resetForm()">Reset</button>
     </form>
     <script>
         function calculate() {
@@ -112,6 +131,16 @@
             const calculatedFields = document.getElementsByClassName('calculated-input');
             for (let field of calculatedFields) {
                 field.style.display = 'block';
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('plugin-form').reset();
+
+            // Hide the calculated fields
+            const calculatedFields = document.getElementsByClassName('calculated-input');
+            for (let field of calculatedFields) {
+                field.style.display = 'none';
             }
         }
     </script>
