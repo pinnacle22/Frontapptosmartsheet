@@ -88,3 +88,30 @@
 
                 if (!matches || matches.length === 0) {
                     matches = context.data.text.match(regex);
+                }
+
+                if (!matches || matches.length === 0) {
+                    for (const comment of context.data.comments || []) {
+                        matches = comment.body.match(regex);
+                        if (matches && matches.length > 0) {
+                            break;
+                        }
+                    }
+                }
+
+                if (matches && matches.length > 0) {
+                    const bolNumber = matches[0];
+                    searchSmartsheet(bolNumber);
+                } else {
+                    document.getElementById('output').innerText = 'Error: BOL number not found in email';
+                }
+            }
+        }
+
+        document.getElementById('checkBOL').addEventListener('click', () => {
+            console.log('Button clicked, subscribing to context updates...');
+            Front.contextUpdates.subscribe(handleContextUpdate);
+        });
+    </script>
+</body>
+</html>
