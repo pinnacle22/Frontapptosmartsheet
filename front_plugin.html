@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +8,7 @@
 </head>
 <body>
     <h1>Search for 11-Digit Numbers</h1>
+    <button id="checkBOL">Check for BOL Number</button>
     <div id="output"></div>
 
     <script>
@@ -16,68 +16,79 @@
         const sheetId = '6173713812639620';
 
         async function searchSmartsheet(bolNumber) {
-            const response = await fetch(`https://api.smartsheet.com/2.0/sheets/${sheetId}`, {
-                headers: {
-                    'Authorization': `Bearer ${smartsheetApiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-            const data = await response.json();
-            const rows = data.rows;
-            const columns = data.columns;
-
-            // Get column IDs by title
-            const columnMap = columns.reduce((map, col) => {
-                map[col.title] = col.id;
-                return map;
-            }, {});
-
-            const targetColumns = [
-                'CaboLink', 'Origin City', 'Origin State', 'Destination City', 'Destination State',
-                'Pickup Date', 'Pickup Time', 'Delivery Date', 'Delivery Time', 'Cost (or carrier cost)',
-                'Customer Charge (Revenue)'
-            ];
-
-            let foundRow = null;
-
-            for (const row of rows) {
-                for (const cell of row.cells) {
-                    if (cell.displayValue && cell.displayValue.includes(bolNumber)) {
-                        foundRow = row;
-                        break;
+            try {
+                const response = await fetch(`https://api.smartsheet.com/2.0/sheets/${sheetId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${smartsheetApiKey}`,
+                        'Content-Type': 'application/json'
                     }
-                }
-                if (foundRow) break;
-            }
+                });
 
-            if (foundRow) {
-                let result = {};
-                for (const col of targetColumns) {
-                    const colId = columnMap[col];
-                    if (colId) {
-                        const cell = foundRow.cells.find(c => c.columnId === colId);
-                        result[col] = cell ? cell.displayValue || cell.value : 'N/A';
-                    } else {
-                        result[col] = 'N/A';
-                    }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data from Smartsheet');
                 }
-                document.getElementById('output').innerText = JSON.stringify(result, null, 2);
-            } else {
-                document.getElementById('output').innerText = 'No matches found in Smartsheet';
+
+                const data = await response.json();
+                const rows = data.rows;
+                const columns = data.columns;
+
+                // Get column IDs by title
+                const columnMap = columns.reduce((map, col) => {
+                    map[col.title] = col.id;
+                    return map;
+                }, {});
+
+                const targetColumns = [
+                    'CaboLink', 'Origin City', 'Origin State', 'Destination City', 'Destination State',
+                    'Pickup Date', 'Pickup Time', 'Delivery Date', 'Delivery Time', 'Cost (or carrier cost)',
+                    'Customer Charge (Revenue)'
+                ];
+
+                let foundRow = null;
+
+                for (const row of rows) {
+                    for (const cell of row.cells) {
+                        if (cell.displayValue && cell.displayValue.includes(bolNumber)) {
+                            foundRow = row;
+                            break;
+                        }
+                    }
+                    if (foundRow) break;
+                }
+
+                if (foundRow) {
+                    let result = {};
+                    for (const col of targetColumns) {
+                        const colId = columnMap[col];
+                        if (colId) {
+                            const cell = foundRow.cells.find(c => c.columnId === colId);
+                            result[col] = cell ? cell.displayValue || cell.value : '';
+                        } else {
+                            result[col] = '';
+                        }
+                    }
+                    document.getElementById('output').innerText = JSON.stringify(result, null, 2);
+                } else {
+                    document.getElementById('output').innerText = 'Error: BOL number not found in Smartsheet';
+                }
+            } catch (error) {
+                document.getElementById('output').innerText = `Error: ${error.message}`;
             }
         }
 
-        Front.contextUpdates.subscribe(context => {
-            if (context.type === 'message') {
-                const regex = /60\d{9}/g;
-                const matches = context.data.text.match(regex);
-                if (matches) {
-                    const bolNumber = matches[0];
-                    searchSmartsheet(bolNumber);
-                } else {
-                    document.getElementById('output').innerText = 'No matches found in email';
+        document.getElementById('checkBOL').addEventListener('click', () => {
+            Front.contextUpdates.subscribe(context => {
+                if (context.type === 'message') {
+                    const regex = /60\\d{9}/g;
+                    const matches = context.data.text.match(regex);
+                    if (matches) {
+                        const bolNumber = matches[0];
+                        searchSmartsheet(bolNumber);
+                    } else {
+                        document.getElementById('output').innerText = 'Error: BOL number not found in email';
+                    }
                 }
-            }
+            });
         });
     </script>
 </body>
