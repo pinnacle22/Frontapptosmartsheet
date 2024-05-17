@@ -101,7 +101,7 @@
         </div>
         <div class="form-group">
             <label for="total-cost">Total Cost</label>
-            <input type="number" id="total-cost" name="total-cost" readonly>
+            <input type="text" id="total-cost" name="total-cost" readonly>
         </div>
         <div class="form-group">
             <label for="markup" class="required-star">Markup %</label>
@@ -110,70 +110,241 @@
         </div>
         <div class="form-group">
             <label for="total-rate">Total Rate to Customer</label>
-            <input type="number" id="total-rate" name="total-rate" readonly>
+            <input type="text" id="total-rate" name="total-rate" readonly>
         </div>
         <button type="button" onclick="validateAndCalculate()">Calculate</button>
         <button type="button" onclick="resetForm()">Reset</button>
     </form>
     <script>
-        function validateAndCalculate() {
-            let isValid = true;
-            
-            const oneP1dMileage = parseFloat(document.getElementById('one-p1d-mileage').value) || 0;
-            const totalMiles = parseFloat(document.getElementById('total-miles').value) || 0;
-            const oneP1dDatRate = parseFloat(document.getElementById('one-p1d-dat-rate').value) || 0;
-            const rpm = parseFloat(document.getElementById('rpm').value) || 0;
-            const numberOfStops = parseInt(document.getElementById('number-of-stops').value) || 0;
-            const additionalRatePerStop = parseFloat(document.getElementById('additional-rate-per-stop').value) || 100;
-            const markup = parseFloat(document.getElementById('markup').value) || 15;
+        document.addEventListener("DOMContentLoaded", function() {
+            const formElements = {
+                pickupCity: document.getElementById('pickup-city'),
+                deliveryCity: document.getElementById('delivery-city'),
+                oneP1dMileage: document.getElementById('one-p1d-mileage'),
+                totalMiles: document.getElementById('total-miles'),
+                oneP1dDatRate: document.getElementById('one-p1d-dat-rate'),
+                additionalMiles: document.getElementById('additional-miles'),
+                rpm: document.getElementById('rpm'),
+                numberOfStops: document.getElementById('number-of-stops'),
+                additionalRatePerStop: document.getElementById('additional-rate-per-stop'),
+                totalCost: document.getElementById('total-cost'),
+                markup: document.getElementById('markup'),
+                totalRate: document.getElementById('total-rate')
+            };
 
-            if (oneP1dMileage < 0 || oneP1dMileage > 5000) {
-                document.getElementById('one-p1d-mileage-error').innerText = 'Mileage must be between 0 and 5000.';
-                isValid = false;
-            } else {
-                document.getElementById('one-p1d-mileage-error').innerText = '';
-            }
-            if (totalMiles < 0 || totalMiles > 10000) {
-                document.getElementById('total-miles-error').innerText = 'Total miles must be between 0 and 10000.';
-                isValid = false;
-            } else {
-                document.getElementById('total-miles-error').innerText = '';
-            }
-            if (oneP1dDatRate < 0 || oneP1dDatRate > 15000) {
-                document.getElementById('one-p1d-dat-rate-error').innerText = 'DAT rate must be between 0 and 15000.';
-                isValid = false;
-            } else {
-                document.getElementById('one-p1d-dat-rate-error').innerText = '';
-            }
-            if (rpm < 0 || rpm > 10) {
-                document.getElementById('rpm-error').innerText = 'RPM must be between 0 and 10.';
-                isValid = false;
-            } else {
-                document.getElementById('rpm-error').innerText = '';
-            }
-            if (numberOfStops < 0 || numberOfStops > 30) {
-                document.getElementById('number-of-stops-error').innerText = 'Number of stops must be between 0 and 30.';
-                isValid = false;
-            } else {
-                document.getElementById('number-of-stops-error').innerText = '';
-            }
-            if (additionalRatePerStop < 0 || additionalRatePerStop > 1000) {
-                document.getElementById('additional-rate-per-stop-error').innerText = 'Rate per extra stop must be between 0 and 1000.';
-                isValid = false;
-            } else {
-                document.getElementById('additional-rate-per-stop-error').innerText = '';
-            }
-            if (markup < 0 || markup > 100) {
-                document.getElementById('markup-error').innerText = 'Markup must be between 0 and 100%.';
-                isValid = false;
-            } else {
-                document.getElementById('markup-error').innerText = '';
+            const errorElements = {
+                oneP1dMileage: document.getElementById('one-p1d-mileage-error'),
+                totalMiles: document.getElementById('total-miles-error'),
+                oneP1dDatRate: document.getElementById('one-p1d-dat-rate-error'),
+                rpm: document.getElementById('rpm-error'),
+                numberOfStops: document.getElementById('number-of-stops-error'),
+                additionalRatePerStop: document.getElementById('additional-rate-per-stop-error'),
+                markup: document.getElementById('markup-error')
+            };
+
+            function validateAndCalculate() {
+                let isValid = true;
+
+                // Validation
+                isValid = validateField(formElements.oneP1dMileage, errorElements.oneP1dMileage, 0, 5000) && isValid;
+                isValid = validateField(formElements.totalMiles, errorElements.totalMiles, 0, 10000) && isValid;
+                isValid = validateField(formElements.oneP1dDatRate, errorElements.oneP1dDatRate, 0, 15000) && isValid;
+                isValid = validateField(formElements.rpm, errorElements.rpm, 0, 10) && isValid;
+                isValid = validateField(formElements.numberOfStops, errorElements.numberOfStops, 0, 30) && isValid;
+                isValid = validateField(formElements.additionalRatePerStop, errorElements.additionalRatePerStop, 0, 1000) && isValid;
+                isValid = validateField(formElements.markup, errorElements.markup, 0, 100) && isValid;
+
+                if (!isValid) return;
+
+                // Calculations
+                const additionalMiles = formElements.totalMiles.value - formElements.oneP1dMileage.value;
+                formElements.additionalMiles.value = additionalMiles;
+
+                const additionalCost = additionalMiles * formElements.rpm.value;
+                const extraStopsCost = (formElements.numberOfStops.value > 1) ? (formElements.numberOfStops.value - 1) * formElements.additionalRatePerStop.value : 0;
+                const totalCost = +formElements.oneP1dDatRate.value + additionalCost + extraStopsCost;
+                formElements### Optimized Code
+
+Here is the optimized version of the code with separate validation, calculation, and reset functions. The code also includes caching of DOM elements and currency formatting for specified fields.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Front Plugin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa; /* Light gray background */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #004a7c; /* Priority1 Blue */
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .manual-input {
+            background-color: #d4edda; /* Light green background */
+        }
+        .required-star::after {
+            content: " *";
+            color: red;
+        }
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+        button {
+            background-color: #004a7c; /* Priority1 Blue */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #003366; /* Darker shade of Priority1 Blue */
+        }
+    </style>
+</head>
+<body>
+    <h1 style="color: #004a7c;">Front Plugin</h1>
+    <form id="plugin-form">
+        <div class="form-group">
+            <label for="pickup-city" class="required-star">Pickup City, ST</label>
+            <input type="text" id="pickup-city" name="pickup-city" class="manual-input">
+            <div class="error" id="pickup-city-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="delivery-city" class="required-star">Delivery City, ST</label>
+            <input type="text" id="delivery-city" name="delivery-city" class="manual-input">
+            <div class="error" id="delivery-city-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="one-p1d-mileage" class="required-star">1p1d Mileage</label>
+            <input type="number" id="one-p1d-mileage" name="one-p1d-mileage" class="manual-input">
+            <div class="error" id="one-p1d-mileage-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="total-miles" class="required-star">Total miles for all stops</label>
+            <input type="number" id="total-miles" name="total-miles" class="manual-input">
+            <div class="error" id="total-miles-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="one-p1d-dat-rate" class="required-star">1p1d DAT rate</label>
+            <input type="number" id="one-p1d-dat-rate" name="one-p1d-dat-rate" class="manual-input">
+            <div class="error" id="one-p1d-dat-rate-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="additional-miles">Additional Miles compared to 1p1d</label>
+            <input type="number" id="additional-miles" name="additional-miles" readonly>
+        </div>
+        <div class="form-group">
+            <label for="rpm" class="required-star">RPM for Additional Miles</label>
+            <input type="number" id="rpm" name="rpm" class="manual-input">
+            <div class="error" id="rpm-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="number-of-stops" class="required-star">Number of Stops</label>
+            <input type="number" id="number-of-stops" name="number-of-stops" class="manual-input">
+            <div class="error" id="number-of-stops-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="additional-rate-per-stop" class="required-star">Additional Rate per extra stop (1st one free)</label>
+            <input type="number" id="additional-rate-per-stop" name="additional-rate-per-stop" class="manual-input" value="100">
+            <div class="error" id="additional-rate-per-stop-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="total-cost">Total Cost</label>
+            <input type="text" id="total-cost" name="total-cost" readonly>
+        </div>
+        <div class="form-group">
+            <label for="markup" class="required-star">Markup %</label>
+            <input type="number" id="markup" name="markup" class="manual-input" value="15">
+            <div class="error" id="markup-error"></div>
+        </div>
+        <div class="form-group">
+            <label for="total-rate">Total Rate to Customer</label>
+            <input type="text" id="total-rate" name="total-rate" readonly>
+        </div>
+        <button type="button" onclick="validateAndCalculate()">Calculate</button>
+        <button type="button" onclick="resetForm()">Reset</button>
+    </form>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const formElements = {
+                pickupCity: document.getElementById('pickup-city'),
+                deliveryCity: document.getElementById('delivery-city'),
+                oneP1dMileage: document.getElementById('one-p1d-mileage'),
+                totalMiles: document.getElementById('total-miles'),
+                oneP1dDatRate: document.getElementById('one-p1d-dat-rate'),
+                additionalMiles: document.getElementById('additional-miles'),
+                rpm: document.getElementById('rpm'),
+                numberOfStops: document.getElementById('number-of-stops'),
+                additionalRatePerStop: document.getElementById('additional-rate-per-stop'),
+                totalCost: document.getElementById('total-cost'),
+                markup: document.getElementById('markup'),
+                totalRate: document.getElementById('total-rate')
+            };
+
+            const errorElements = {
+                oneP1dMileage: document.getElementById('one-p1d-mileage-error'),
+                totalMiles: document.getElementById('total-miles-error'),
+                oneP1dDatRate: document.getElementById('one-p1d-dat-rate-error'),
+                rpm: document.getElementById('rpm-error'),
+                numberOfStops: document.getElementById('number-of-stops-error'),
+                additionalRatePerStop: document.getElementById('additional-rate-per-stop-error'),
+                markup: document.getElementById('markup-error')
+            };
+
+            function validateField(field, errorElement, min, max) {
+                const value = parseFloat(field.value);
+                if (value < min || value > max) {
+                    errorElement.innerText = `Value must be between ${min} and ${max}.`;
+                    return false;
+                } else {
+                    errorElement.innerText = '';
+                    return true;
+                }
             }
 
-            if (!isValid) return;
+            function formatCurrency(value) {
+                return `$${Math.round(value).toLocaleString()}`;
+            }
 
-            const additionalMiles = totalMiles - oneP1dMileage;
-            document.getElementById('additional-miles').value = additionalMiles;
+            function validateAndCalculate() {
+                let isValid = true;
 
-            const additionalCost = additionalMiles * rpm;
-            const extraStopsCost = (numberOfStops > 1) ? (
+                // Validation
+                isValid = validateField(formElements.oneP1dMileage, errorElements.oneP1dMileage, 0, 5000) && isValid;
+                isValid = validateField(formElements.totalMiles, errorElements.totalMiles, 0, 10000) && isValid;
+                isValid = validateField(formElements.oneP1dDatRate, errorElements.oneP1dDatRate, 0, 15000) && isValid;
+                isValid = validateField(formElements.rpm, errorElements.rpm, 0, 10) && isValid;
+                isValid = validateField(formElements.numberOfStops, errorElements.numberOfStops, 0, 30) && isValid;
+                isValid = validateField(formElements.additionalRatePerStop, errorElements.additionalRatePerStop, 0, 1000) && isValid;
+                isValid = validateField(formElements.markup, errorElements.markup, 0, 100) && isValid;
+
+                if (!isValid) return;
+
+                // Calculations
+                const additionalMiles = formElements.totalMiles.value - formElements.oneP1dMileage.value;
+                formElements.additionalMiles.value = additionalMiles;
+
+                const additionalCost = additionalMiles * formElements.rpm.value;
+                const extraStopsCost = (formElements.numberOfStops.value > 1) ? (formElements.numberOfStops.value - 1) * formElements.additionalRatePerStop.value : 0;
+                const totalCost = +formElements.oneP1dDatRate.value + additional
