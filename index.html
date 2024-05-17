@@ -36,10 +36,6 @@
             content: " *";
             color: red;
         }
-        .error {
-            color: red;
-            font-size: 12px;
-        }
         button {
             background-color: #004a7c; /* Priority1 Blue */
             color: white;
@@ -61,27 +57,22 @@
         <div class="form-group">
             <label for="pickup-city" class="required-star">Pickup City, ST</label>
             <input type="text" id="pickup-city" name="pickup-city" class="manual-input">
-            <div class="error" id="pickup-city-error"></div>
         </div>
         <div class="form-group">
             <label for="delivery-city" class="required-star">Delivery City, ST</label>
             <input type="text" id="delivery-city" name="delivery-city" class="manual-input">
-            <div class="error" id="delivery-city-error"></div>
         </div>
         <div class="form-group">
             <label for="one-p1d-mileage" class="required-star">1p1d Mileage</label>
             <input type="number" id="one-p1d-mileage" name="one-p1d-mileage" class="manual-input">
-            <div class="error" id="one-p1d-mileage-error"></div>
         </div>
         <div class="form-group">
             <label for="total-miles" class="required-star">Total miles for all stops</label>
             <input type="number" id="total-miles" name="total-miles" class="manual-input">
-            <div class="error" id="total-miles-error"></div>
         </div>
         <div class="form-group">
             <label for="one-p1d-dat-rate" class="required-star">1p1d DAT rate</label>
             <input type="number" id="one-p1d-dat-rate" name="one-p1d-dat-rate" class="manual-input">
-            <div class="error" id="one-p1d-dat-rate-error"></div>
         </div>
         <div class="form-group">
             <label for="additional-miles">Additional Miles compared to 1p1d</label>
@@ -90,17 +81,14 @@
         <div class="form-group">
             <label for="rpm" class="required-star">RPM for Additional Miles</label>
             <input type="number" id="rpm" name="rpm" class="manual-input">
-            <div class="error" id="rpm-error"></div>
         </div>
         <div class="form-group">
             <label for="number-of-stops" class="required-star">Number of Stops</label>
             <input type="number" id="number-of-stops" name="number-of-stops" class="manual-input">
-            <div class="error" id="number-of-stops-error"></div>
         </div>
         <div class="form-group">
             <label for="additional-rate-per-stop" class="required-star">Additional Rate per extra stop (1st one free)</label>
             <input type="number" id="additional-rate-per-stop" name="additional-rate-per-stop" class="manual-input" value="100">
-            <div class="error" id="additional-rate-per-stop-error"></div>
         </div>
         <div class="form-group">
             <label for="total-cost">Total Cost</label>
@@ -109,13 +97,12 @@
         <div class="form-group">
             <label for="markup" class="required-star">Markup %</label>
             <input type="number" id="markup" name="markup" class="manual-input" value="15">
-            <div class="error" id="markup-error"></div>
         </div>
         <div class="form-group">
             <label for="total-rate">Total Rate to Customer</label>
             <input type="text" id="total-rate" name="total-rate" class="readonly-input" readonly>
         </div>
-        <button type="button" onclick="validateAndCalculate()">Calculate</button>
+        <button type="button" onclick="calculateFields()">Calculate</button>
         <button type="button" onclick="resetForm()">Reset</button>
     </form>
     <script>
@@ -139,17 +126,27 @@
                 return `$${Math.round(value).toLocaleString()}`;
             }
 
-            function validateAndCalculate() {
-                // Calculations
-                const additionalMiles = parseFloat(formElements.totalMiles.value) - parseFloat(formElements.oneP1dMileage.value);
+            function calculateFields() {
+                const oneP1dMileage = parseFloat(formElements.oneP1dMileage.value) || 0;
+                const totalMiles = parseFloat(formElements.totalMiles.value) || 0;
+                const oneP1dDatRate = parseFloat(formElements.oneP1dDatRate.value) || 0;
+                const rpm = parseFloat(formElements.rpm.value) || 0;
+                const numberOfStops = parseInt(formElements.numberOfStops.value) || 0;
+                const additionalRatePerStop = parseFloat(formElements.additionalRatePerStop.value) || 100;
+                const markup = parseFloat(formElements.markup.value) || 15;
+
+                // Calculate Additional Miles
+                const additionalMiles = totalMiles - oneP1dMileage;
                 formElements.additionalMiles.value = additionalMiles;
 
-                const additionalCost = additionalMiles * parseFloat(formElements.rpm.value);
-                const extraStopsCost = (parseFloat(formElements.numberOfStops.value) > 1) ? (parseFloat(formElements.numberOfStops.value) - 1) * parseFloat(formElements.additionalRatePerStop.value) : 0;
-                const totalCost = parseFloat(formElements.oneP1dDatRate.value) + additionalCost + extraStopsCost;
+                // Calculate Total Cost
+                const additionalCost = additionalMiles * rpm;
+                const extraStopsCost = numberOfStops > 1 ? (numberOfStops - 1) * additionalRatePerStop : 0;
+                const totalCost = oneP1dDatRate + additionalCost + extraStopsCost;
                 formElements.totalCost.value = formatCurrency(totalCost);
 
-                const totalRate = totalCost * (1 + parseFloat(formElements.markup.value) / 100);
+                // Calculate Total Rate to Customer
+                const totalRate = totalCost * (1 + markup / 100);
                 formElements.totalRate.value = formatCurrency(totalRate);
             }
 
