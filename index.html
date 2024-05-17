@@ -135,48 +135,41 @@
                 totalRate: document.getElementById('total-rate')
             };
 
-            const errorElements = {
-                oneP1dMileage: document.getElementById('one-p1d-mileage-error'),
-                totalMiles: document.getElementById('total-miles-error'),
-                oneP1dDatRate: document.getElementById('one-p1d-dat-rate-error'),
-                rpm: document.getElementById('rpm-error'),
-                numberOfStops: document.getElementById('number-of-stops-error'),
-                additionalRatePerStop: document.getElementById('additional-rate-per-stop-error'),
-                markup: document.getElementById('markup-error')
-            };
-
-            function validateField(field, errorElement, min, max) {
-                const value = parseFloat(field.value);
-                if (value < min || value > max) {
-                    errorElement.innerText = `Value must be between ${min} and ${max}.`;
-                    return false;
-                } else {
-                    errorElement.innerText = '';
-                    return true;
-                }
-            }
-
             function formatCurrency(value) {
                 return `$${Math.round(value).toLocaleString()}`;
             }
 
             function validateAndCalculate() {
-                let isValid = true;
-
-                // Validation
-                isValid = validateField(formElements.oneP1dMileage, errorElements.oneP1dMileage, 0, 5000) && isValid;
-                isValid = validateField(formElements.totalMiles, errorElements.totalMiles, 0, 10000) && isValid;
-                isValid = validateField(formElements.oneP1dDatRate, errorElements.oneP1dDatRate, 0, 15000) && isValid;
-                isValid = validateField(formElements.rpm, errorElements.rpm, 0, 10) && isValid;
-                isValid = validateField(formElements.numberOfStops, errorElements.numberOfStops, 0, 30) && isValid;
-                isValid = validateField(formElements.additionalRatePerStop, errorElements.additionalRatePerStop, 0, 1000) && isValid;
-                isValid = validateField(formElements.markup, errorElements.markup, 0, 100) && isValid;
-
-                if (!isValid) return;
-
                 // Calculations
                 const additionalMiles = parseFloat(formElements.totalMiles.value) - parseFloat(formElements.oneP1dMileage.value);
                 formElements.additionalMiles.value = additionalMiles;
 
                 const additionalCost = additionalMiles * parseFloat(formElements.rpm.value);
-                const extraStopsCost = (parseFloat(form
+                const extraStopsCost = (parseFloat(formElements.numberOfStops.value) > 1) ? (parseFloat(formElements.numberOfStops.value) - 1) * parseFloat(formElements.additionalRatePerStop.value) : 0;
+                const totalCost = parseFloat(formElements.oneP1dDatRate.value) + additionalCost + extraStopsCost;
+                formElements.totalCost.value = formatCurrency(totalCost);
+
+                const totalRate = totalCost * (1 + parseFloat(formElements.markup.value) / 100);
+                formElements.totalRate.value = formatCurrency(totalRate);
+            }
+
+            function resetForm() {
+                formElements.pickupCity.value = '';
+                formElements.deliveryCity.value = '';
+                formElements.oneP1dMileage.value = '';
+                formElements.totalMiles.value = '';
+                formElements.oneP1dDatRate.value = '';
+                formElements.additionalMiles.value = '';
+                formElements.rpm.value = '';
+                formElements.numberOfStops.value = '';
+                formElements.additionalRatePerStop.value = 100;
+                formElements.totalCost.value = '';
+                formElements.markup.value = 15;
+                formElements.totalRate.value = '';
+            }
+
+            document.querySelector("button[onclick='resetForm()']").addEventListener('click', resetForm);
+        });
+    </script>
+</body>
+</html>
