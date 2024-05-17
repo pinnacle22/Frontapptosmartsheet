@@ -17,6 +17,7 @@
 
         async function searchSmartsheet(bolNumber) {
             try {
+                console.log(`Searching Smartsheet for BOL number: ${bolNumber}`);
                 const response = await fetch(`https://api.smartsheet.com/2.0/sheets/${sheetId}`, {
                     headers: {
                         'Authorization': `Bearer ${smartsheetApiKey}`,
@@ -32,7 +33,6 @@
                 const rows = data.rows;
                 const columns = data.columns;
 
-                // Get column IDs by title
                 const columnMap = columns.reduce((map, col) => {
                     map[col.title] = col.id;
                     return map;
@@ -76,36 +76,15 @@
             }
         }
 
-        document.getElementById('checkBOL').addEventListener('click', () => {
-            Front.contextUpdates.subscribe(context => {
-                if (context.type === 'message') {
-                    const regex = /60\\d{9}/g;
-                    let matches = [];
+        function handleContextUpdate(context) {
+            if (context.type === 'message') {
+                console.log('Message context:', context);
+                const regex = /60\\d{9}/g;
+                let matches = [];
 
-                    // Search subject
-                    if (context.subject) {
-                        matches = context.subject.match(regex);
-                    }
+                if (context.subject) {
+                    matches = context.subject.match(regex);
+                }
 
-                    // Search body text
-                    if (!matches || matches.length === 0) {
-                        matches = context.data.text.match(regex);
-                    }
-
-                    // Search comments
-                    if (!matches || matches.length === 0) {
-                        for (const comment of context.data.comments || []) {
-                            matches = comment.body.match(regex);
-                            if (matches && matches.length > 0) {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (matches && matches.length > 0) {
-                        const bolNumber = matches[0];
-                        searchSmartsheet(bolNumber);
-                    } else {
-                        document.getElementById('output').innerText = 'Error: BOL number not found in email';
-                    }
-             
+                if (!matches || matches.length === 0) {
+                    matches = context.data.text.match(regex);
