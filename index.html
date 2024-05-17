@@ -26,6 +26,13 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+        .manual-input {
+            background-color: #d4edda; /* Light green background */
+        }
+        .required-star::after {
+            content: " *";
+            color: red;
+        }
         .error {
             color: red;
             font-size: 12px;
@@ -38,6 +45,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            margin-right: 10px;
         }
         button:hover {
             background-color: #003366; /* Darker shade of Priority1 Blue */
@@ -48,28 +56,28 @@
     <h1 style="color: #004a7c;">Front Plugin</h1>
     <form id="plugin-form">
         <div class="form-group">
-            <label for="pickup-city">Pickup City, ST</label>
-            <input type="text" id="pickup-city" name="pickup-city">
+            <label for="pickup-city" class="required-star">Pickup City, ST</label>
+            <input type="text" id="pickup-city" name="pickup-city" class="manual-input">
             <div class="error" id="pickup-city-error"></div>
         </div>
         <div class="form-group">
-            <label for="delivery-city">Delivery City, ST</label>
-            <input type="text" id="delivery-city" name="delivery-city">
+            <label for="delivery-city" class="required-star">Delivery City, ST</label>
+            <input type="text" id="delivery-city" name="delivery-city" class="manual-input">
             <div class="error" id="delivery-city-error"></div>
         </div>
         <div class="form-group">
-            <label for="one-p1d-mileage">1p1d Mileage</label>
-            <input type="number" id="one-p1d-mileage" name="one-p1d-mileage">
+            <label for="one-p1d-mileage" class="required-star">1p1d Mileage</label>
+            <input type="number" id="one-p1d-mileage" name="one-p1d-mileage" class="manual-input">
             <div class="error" id="one-p1d-mileage-error"></div>
         </div>
         <div class="form-group">
-            <label for="total-miles">Total miles for all stops</label>
-            <input type="number" id="total-miles" name="total-miles">
+            <label for="total-miles" class="required-star">Total miles for all stops</label>
+            <input type="number" id="total-miles" name="total-miles" class="manual-input">
             <div class="error" id="total-miles-error"></div>
         </div>
         <div class="form-group">
-            <label for="one-p1d-dat-rate">1p1d DAT rate</label>
-            <input type="number" id="one-p1d-dat-rate" name="one-p1d-dat-rate">
+            <label for="one-p1d-dat-rate" class="required-star">1p1d DAT rate</label>
+            <input type="number" id="one-p1d-dat-rate" name="one-p1d-dat-rate" class="manual-input">
             <div class="error" id="one-p1d-dat-rate-error"></div>
         </div>
         <div class="form-group">
@@ -77,18 +85,18 @@
             <input type="number" id="additional-miles" name="additional-miles" readonly>
         </div>
         <div class="form-group">
-            <label for="rpm">RPM for Additional Miles</label>
-            <input type="number" id="rpm" name="rpm">
+            <label for="rpm" class="required-star">RPM for Additional Miles</label>
+            <input type="number" id="rpm" name="rpm" class="manual-input">
             <div class="error" id="rpm-error"></div>
         </div>
         <div class="form-group">
-            <label for="number-of-stops">Number of Stops</label>
-            <input type="number" id="number-of-stops" name="number-of-stops">
+            <label for="number-of-stops" class="required-star">Number of Stops</label>
+            <input type="number" id="number-of-stops" name="number-of-stops" class="manual-input">
             <div class="error" id="number-of-stops-error"></div>
         </div>
         <div class="form-group">
-            <label for="additional-rate-per-stop">Additional Rate per extra stop (1st one free)</label>
-            <input type="number" id="additional-rate-per-stop" name="additional-rate-per-stop" value="100">
+            <label for="additional-rate-per-stop" class="required-star">Additional Rate per extra stop (1st one free)</label>
+            <input type="number" id="additional-rate-per-stop" name="additional-rate-per-stop" class="manual-input" value="100">
             <div class="error" id="additional-rate-per-stop-error"></div>
         </div>
         <div class="form-group">
@@ -96,8 +104,8 @@
             <input type="number" id="total-cost" name="total-cost" readonly>
         </div>
         <div class="form-group">
-            <label for="markup">Markup %</label>
-            <input type="number" id="markup" name="markup" value="15">
+            <label for="markup" class="required-star">Markup %</label>
+            <input type="number" id="markup" name="markup" class="manual-input" value="15">
             <div class="error" id="markup-error"></div>
         </div>
         <div class="form-group">
@@ -105,6 +113,7 @@
             <input type="number" id="total-rate" name="total-rate" readonly>
         </div>
         <button type="button" onclick="validateAndCalculate()">Calculate</button>
+        <button type="button" onclick="resetForm()">Reset</button>
     </form>
     <script>
         function validateAndCalculate() {
@@ -167,14 +176,4 @@
             document.getElementById('additional-miles').value = additionalMiles;
 
             const additionalCost = additionalMiles * rpm;
-            const extraStopsCost = (numberOfStops > 1) ? (numberOfStops - 1) * additionalRatePerStop : 0;
-            const totalCost = oneP1dDatRate + additionalCost + extraStopsCost;
-            document.getElementById('total-cost').value = totalCost;
-
-            const totalRate = totalCost * (1 + markup / 100);
-            document.getElementById('total-rate').value = totalRate;
-        }
-    </script>
-</body>
-</html>
-
+            const extraStopsCost = (numberOfStops > 1) ? (
