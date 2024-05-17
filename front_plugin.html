@@ -80,16 +80,32 @@
             Front.contextUpdates.subscribe(context => {
                 if (context.type === 'message') {
                     const regex = /60\\d{9}/g;
-                    const matches = context.data.text.match(regex);
-                    if (matches) {
+                    let matches = [];
+
+                    // Search subject
+                    if (context.subject) {
+                        matches = context.subject.match(regex);
+                    }
+
+                    // Search body text
+                    if (!matches || matches.length === 0) {
+                        matches = context.data.text.match(regex);
+                    }
+
+                    // Search comments
+                    if (!matches || matches.length === 0) {
+                        for (const comment of context.data.comments || []) {
+                            matches = comment.body.match(regex);
+                            if (matches && matches.length > 0) {
+                                break;
+                            }
+                        }
+                    }
+
+                    if (matches && matches.length > 0) {
                         const bolNumber = matches[0];
                         searchSmartsheet(bolNumber);
                     } else {
                         document.getElementById('output').innerText = 'Error: BOL number not found in email';
                     }
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+             
