@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
-            background-color: #f0f0f0; /* Light Gray */
+            background-color: #f0f0f0; /* Very light gray background color */
         }
         .form-group {
             margin-bottom: 15px;
@@ -107,11 +107,15 @@
         <button type="button" onclick="resetForm()">Reset</button>
     </form>
     <script>
+        function formatCurrency(value) {
+            return `$${Math.round(value).toLocaleString()}`;
+        }
+
         function calculate() {
             const oneP1dMileage = parseFloat(document.getElementById('one-p1d-mileage').value) || 0;
             const totalMiles = parseFloat(document.getElementById('total-miles').value) || 0;
             const oneP1dDatRate = parseFloat(document.getElementById('one-p1d-dat-rate').value) || 0;
-            const rpm = parseFloat(document.getElementById('rpm').value) || 0;
+            const rpm = parseFloat(document.getElementById('rpm').value) || 2.25;
             const numberOfStops = parseInt(document.getElementById('number-of-stops').value) || 0;
             const additionalRatePerStop = parseFloat(document.getElementById('additional-rate-per-stop').value) || 100;
             const markup = parseFloat(document.getElementById('markup').value) || 15;
@@ -122,16 +126,21 @@
             const additionalCost = additionalMiles * rpm;
             const extraStopsCost = (numberOfStops > 1) ? (numberOfStops - 1) * additionalRatePerStop : 0;
             const totalCost = oneP1dDatRate + additionalCost + extraStopsCost;
-            document.getElementById('total-cost').value = totalCost;
+            document.getElementById('total-cost').value = formatCurrency(totalCost);
 
             const totalRate = totalCost * (1 + markup / 100);
-            document.getElementById('total-rate').value = totalRate;
+            document.getElementById('total-rate').value = formatCurrency(totalRate);
 
             // Show the calculated fields
             const calculatedFields = document.getElementsByClassName('calculated-input');
             for (let field of calculatedFields) {
                 field.style.display = 'block';
             }
+
+            // Format manual currency inputs
+            document.getElementById('one-p1d-dat-rate').value = formatCurrency(oneP1dDatRate);
+            document.getElementById('rpm').value = formatCurrency(rpm);
+            document.getElementById('additional-rate-per-stop').value = formatCurrency(additionalRatePerStop);
         }
 
         function resetForm() {
