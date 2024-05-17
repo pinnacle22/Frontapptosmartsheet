@@ -175,8 +175,8 @@
                 if (!isValid) return;
 
                 // Calculations
-                const additionalMiles = formElements.totalMiles.value - formElements.oneP1dMileage.value;
+                const additionalMiles = parseFloat(formElements.totalMiles.value) - parseFloat(formElements.oneP1dMileage.value);
                 formElements.additionalMiles.value = additionalMiles;
 
-                const additionalCost = additionalMiles * formElements.rpm.value;
-                const extraStopsCost = (formElements.numberOfStops.value > 1) ? (formElements.numberOfStops.value - 
+                const additionalCost = additionalMiles * parseFloat(formElements.rpm.value);
+                const extraStopsCost = (parseFloat(form
