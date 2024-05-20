@@ -68,20 +68,24 @@
             <input type="number" id="one-p1d-mileage" name="one-p1d-mileage" class="manual-input">
         </div>
         <div class="form-group">
-            <label for="total-miles" class="required-star">Total miles for all stops</label>
-            <input type="number" id="total-miles" name="total-miles" class="manual-input">
-        </div>
-        <div class="form-group">
             <label for="one-p1d-dat-rate" class="required-star">1p1d DAT rate</label>
             <input type="number" id="one-p1d-dat-rate" name="one-p1d-dat-rate" class="manual-input">
         </div>
         <div class="form-group">
-            <label for="rpm" class="required-star">RPM for Additional Miles</label>
-            <input type="number" id="rpm" name="rpm" class="manual-input" value="2.25">
+            <label for="driver-assist-cost" class="required-star">Driver Assist Cost</label>
+            <input type="number" id="driver-assist-cost" name="driver-assist-cost" class="manual-input" value="200">
         </div>
         <div class="form-group">
             <label for="number-of-stops" class="required-star">Number of Stops</label>
             <input type="number" id="number-of-stops" name="number-of-stops" class="manual-input">
+        </div>
+        <div class="form-group">
+            <label for="total-miles" class="required-star">Total miles for all stops</label>
+            <input type="number" id="total-miles" name="total-miles" class="manual-input">
+        </div>
+        <div class="form-group">
+            <label for="rpm" class="required-star">RPM for Additional Miles</label>
+            <input type="number" id="rpm" name="rpm" class="manual-input" value="2.25">
         </div>
         <div class="form-group">
             <label for="additional-rate-per-stop" class="required-star">Additional Rate per extra stop (1st one free)</label>
@@ -89,7 +93,7 @@
         </div>
         <div class="form-group">
             <label for="markup" class="required-star">Markup %</label>
-            <input type="number" id="markup" name="markup" class="manual-input" value="15">
+            <input type="number" id="markup" name="markup" class="manual-input" value="20">
         </div>
         <div class="form-group calculated-input">
             <label for="additional-miles">Additional Miles compared to 1p1d</label>
@@ -115,17 +119,18 @@
             const oneP1dMileage = parseFloat(document.getElementById('one-p1d-mileage').value) || 0;
             const totalMiles = parseFloat(document.getElementById('total-miles').value) || 0;
             const oneP1dDatRate = parseFloat(document.getElementById('one-p1d-dat-rate').value) || 0;
+            const driverAssistCost = parseFloat(document.getElementById('driver-assist-cost').value) || 200;
             const rpm = parseFloat(document.getElementById('rpm').value) || 2.25;
             const numberOfStops = parseInt(document.getElementById('number-of-stops').value) || 0;
             const additionalRatePerStop = parseFloat(document.getElementById('additional-rate-per-stop').value) || 100;
-            const markup = parseFloat(document.getElementById('markup').value) || 15;
+            const markup = parseFloat(document.getElementById('markup').value) || 20;
 
             const additionalMiles = totalMiles - oneP1dMileage;
             document.getElementById('additional-miles').value = additionalMiles;
 
             const additionalCost = additionalMiles * rpm;
             const extraStopsCost = (numberOfStops > 1) ? (numberOfStops - 1) * additionalRatePerStop : 0;
-            const totalCost = oneP1dDatRate + additionalCost + extraStopsCost;
+            const totalCost = oneP1dDatRate + additionalCost + extraStopsCost + driverAssistCost;
             document.getElementById('total-cost').value = formatCurrency(Math.round(totalCost));
 
             const totalRate = totalCost * (1 + markup / 100);
